@@ -1,0 +1,97 @@
+---
+title: "Statistical Inference"
+author: "Sergei Titov"
+subtitle: Peer Assessment Part 2
+output: pdf_document
+---
+
+## Overview
+This part of Statistical Inference project consider with the ToothGrowth data in the R datasets package short analysis. The goal of this report is:
+
+- Perform some basic exploratory data analysis 
+- Provide a basic summary of the data.
+- Compare tooth growth by supp and dose using confidence intervals and hypothesis tests. 
+- State conclusions. 
+
+## Load and describe the data
+Loading the data from datasets package.
+```{r, echo = T}
+library (datasets)
+data (ToothGrowth)
+```
+
+Quick summary on the data.
+```{r, echo = T}
+str (ToothGrowth)
+```
+The dataset provide the Effect of Vitamin C on Tooth Growth in Guinea Pigs. Data frame has 60 observations on 3 variables.  
+
+[,1]	 len.  Tooth length of guinea pigs  
+[,2]	 supp. Supplement type: VC or OJ (ascorbic acid or orange juice).  
+[,3]	 dose. Dose in milligrams.  
+
+```{r, echo = T}
+head (ToothGrowth, 3)
+summary (ToothGrowth)
+```
+
+Plot the data.
+```{r, fig.height = 5, fig.width = 8}
+coplot(len ~ dose | supp, data = ToothGrowth, 
+       panel = panel.smooth, show.given = F,
+       xlab = "ToothGrowth data: length vs dose, given type of supplement")
+```
+
+## Statistical analysis
+
+To analyze tooth growth, we provide two-sample (orange juice vs. ascorbic acid) T-tests at each dosage level.
+
+The T-test at 0.5 mg yields the following:
+```{r, echo = T}
+tt.5 <- t.test(len ~ supp, ToothGrowth[ToothGrowth$dose == .5, ], var.equal = T)
+tt.5
+```
+
+P value equals `r round (tt.5$p.value * 100, 2)`% and the 95% confidence interval doesn't contain zero.  
+We reject the null hypothesis and take alternative - true difference in means is not equal to 0.
+
+The T-test at 1 mg yields the following:
+
+```{r, echo = T}
+tt1 <- t.test(len ~ supp, ToothGrowth[ToothGrowth$dose == 1,  ], var.equal = T)
+tt1
+```
+
+P value equals `r round (tt1$p.value * 100, 2)`% and the 95% confidence interval doesn't contain zero.  
+We reject the null hypothesis and take alternative - true difference in means is not equal to 0.
+
+The T-test at 2 mg yields the following:
+
+```{r, echo = T}
+tt2 <- t.test(len ~ supp, ToothGrowth[ToothGrowth$dose == 2,  ], var.equal = T)
+tt2
+```
+
+P value equals `r round (tt2$p.value * 100, 2)`% and the 95% confidence interval contains zero.  
+We fail to reject the null hypothesis - true difference in means is equal to 0.
+
+The overall T-Test, not including dose variable provide the folowing:
+```{r, echo = T}
+t.test (len ~ supp, ToothGrowth, var.equal = T)
+```
+
+P value equals `r round (t.test (len ~ supp, ToothGrowth, var.equal = T)$p.value * 100, 2)`% and the 95% confidence interval contains zero.  
+We fail to reject the null hypothesis - true difference in means is equal to 0.
+
+## Conclusions
+For this experiment, we've assumed there's a common variance in the guinea pigs population (var.equal = TRUE) and the test is not paired (default paired = FALSE).
+
+From the exploratory data analysis, we see that increased vitamin C dosages (in either orange juice or ascorbic acid form) is an effective of tooth growth.
+
+From the T-test analysis, we see that for dosages of 0.5 mg and 1 mg, orange juice is more effective at promoting tooth growth than just ascorbic acid. From the p-value for the 2 mg, we cannot conclude that orange juice promotes tooth growth more effectively than just ascorbic acid.
+
+The overall view on supplement type (not considering doze value) give us a conclusion, that supplement type has no effect on tooth growth
+
+
+
+
